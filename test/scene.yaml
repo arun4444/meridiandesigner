@@ -1,0 +1,114 @@
+scene:
+    background:
+        color: black
+
+styles:
+    transparent:
+        base: polygons
+        blend: add
+    transparent-lines:
+        base: lines
+        blend: inlay
+    transparent-points:
+        base: points
+        blend: inlay
+
+global:
+    key_text: ''
+    value_text: ''
+    collide: true
+    filter: |
+        function () {
+            return global.key_text && global.value_text &&  String(feature[global.key_text]).toLowerCase().indexOf(global.value_text.toLowerCase()) > -1;
+        }
+    feature_order: function() { return feature.sort_rank; }
+
+    matching:
+        filter: global.filter
+        draw:
+            lines:
+                interactive: true
+                order: 1000
+                color: red
+                width: 2px
+            transparent:
+                interactive: true
+                order: 999
+                color: [.2, .0, .0, .5]
+        points:
+            filter: { $geometry: point }
+            draw:
+                points:
+                    priority: 1
+                    interactive: true
+                    color: '#f88'
+                    size: 8px
+                    cull_from_tile: false
+                    collide: false
+                    text:
+                        collide: global.collide
+                        optional: true
+                        anchor: [bottom, top, right, left, bottom-right, bottom-left, top-right, top-left]
+                        font:
+                            size: 8pt
+                            family: Lucida Grande
+                            fill: white
+        line-and-polygon-labels:
+            filter: { not: { $geometry: point } }
+            draw:
+                text:
+                    priority: 2
+                    interactive: true
+                    font:
+                        size: 8pt
+                        family: Lucida Grande
+                        fill: white
+
+camera:
+    type: isometric
+
+sources:
+    osm:
+        type: MVT
+        url:  https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt
+        url_params:
+            api_key: mapzen-PvCT6iP
+        max_zoom: 16
+
+layers:
+    earth:
+        data: { source: osm }
+        draw:
+            transparent:
+                interactive: true
+                order: global.feature_order
+                color: '#333'
+        matching: global.matching
+
+    landuse:
+        data: { source: osm }
+        matching: global.matching
+
+    water:
+        data: { source: osm }
+        matching: global.matching
+
+    boundaries:
+        data: { source: osm }
+        matching: global.matching
+
+    roads:
+        data: { source: osm }
+        matching: global.matching
+
+    transit:
+        data: { source: osm }
+        matching: global.matching
+
+    places:
+        data: { source: osm }
+        matching: global.matching
+
+    pois:
+        data: { source: osm }
+        matching: global.matching
